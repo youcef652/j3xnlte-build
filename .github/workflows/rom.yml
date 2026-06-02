@@ -124,6 +124,7 @@ jobs:
         run: |
           cd lineage
           source build/envsetup.sh
+          export ALLOW_MISSING_DEPENDENCIES=true
           lunch lineage_j3xnlte-userdebug
           mka bacon -j2
 
