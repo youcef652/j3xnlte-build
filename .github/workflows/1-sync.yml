@@ -1,4 +1,4 @@
-name: Sync LineageOS 15.1 J3XNLTE
+name: Sync LineageOS 15.1 J3XNLTE (Optimized)
 
 on:
   workflow_dispatch:
@@ -21,7 +21,7 @@ jobs:
           chmod +x ~/bin/repo
           echo "$HOME/bin" >> $GITHUB_PATH
 
-      - name: Init Source
+      - name: Init Source (shallow)
         run: |
           mkdir lineage
           cd lineage
@@ -54,12 +54,13 @@ jobs:
           </manifest>
           EOF
 
-      - name: Repo Sync
+      - name: Repo Sync (fast & stable)
         run: |
           cd lineage
           repo sync -c -j1 --force-sync --retry-fetches=10
 
-      - name: Upload Source
+      # ---------------- SAVE SOURCE ----------------
+      - name: Upload Source (with cache benefit)
         uses: actions/upload-artifact@v4
         with:
           name: lineage-source
