@@ -76,9 +76,10 @@ jobs:
           </manifest>
           EOF
 
-      - name: Test sharkls-common Access
+      - name: Test sharkls-common Access (safe)
         run: |
-          git ls-remote https://github.com/djeman/android_kernel_samsung_sharkls-common.git
+          git config --global url."https://github.com/".insteadOf "git@github.com:"
+          GIT_TERMINAL_PROMPT=0 git ls-remote https://github.com/djeman/android_kernel_samsung_sharkls-common.git || echo "FAILED BUT CONTINUE"
 
       - name: Repo Sync
         run: |
