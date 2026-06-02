@@ -75,7 +75,7 @@ jobs:
             <!-- VENDOR SPRD (IMPORTANT FIX) -->
             <project path="vendor/sprd"
                      name="ljvblfz/fork-android_vendor_sprd"
-                     revision="main" />
+                     revision="master" />
 
           </manifest>
           EOF
