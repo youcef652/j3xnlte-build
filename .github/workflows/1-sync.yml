@@ -1,4 +1,4 @@
-name: Sync LineageOS 15.1 J3XNLTE (Optimized)
+name: LineageOS 15.1 Sync (J3XNLTE Clean)
 
 on:
   workflow_dispatch:
@@ -8,12 +8,22 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
+
+      # ---------------- CLEAN SPACE ----------------
       - name: Free Space
         run: |
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
           sudo rm -rf /usr/local/lib/android
+          df -h
 
+      # ---------------- INSTALL DEPENDENCIES ----------------
+      - name: Install Tools
+        run: |
+          sudo apt update
+          sudo apt install -y git curl
+
+      # ---------------- INSTALL REPO TOOL ----------------
       - name: Install repo
         run: |
           mkdir -p ~/bin
@@ -21,18 +31,27 @@ jobs:
           chmod +x ~/bin/repo
           echo "$HOME/bin" >> $GITHUB_PATH
 
-      - name: Init Source (shallow)
+      # ---------------- INIT SOURCE ----------------
+      - name: Init LineageOS
         run: |
           mkdir lineage
           cd lineage
           repo init -u https://github.com/LineageOS/android.git -b lineage-15.1 --depth=1
 
-      - name: Add Local Manifest
+      # ---------------- CLEAN LOCAL MANIFESTS ----------------
+      - name: Clean manifests
         run: |
           cd lineage
+          rm -rf .repo/local_manifests
           mkdir -p .repo/local_manifests
 
+      # ---------------- ADD DEVICE MANIFEST ----------------
+      - name: Add Manifest
+        run: |
+          cd lineage
+
           cat > .repo/local_manifests/j3xnlte.xml << 'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
           <manifest>
 
             <project path="device/samsung/j3xnlte"
@@ -47,21 +66,18 @@ jobs:
                      name="LineageOS/android_hardware_samsung"
                      revision="lineage-15.1" />
 
-            <project path="bootable/recovery"
-                     name="omnirom/android_bootable_recovery"
-                     revision="android-8.1" />
-
           </manifest>
           EOF
 
-      - name: Repo Sync (fast & stable)
+      # ---------------- SYNC ----------------
+      - name: Repo Sync
         run: |
           cd lineage
-          repo sync -c -j1 --force-sync --retry-fetches=10
+          repo sync -c --force-sync --no-tags --no-clone-bundle -j1
 
-      # ---------------- SAVE SOURCE ----------------
-      - name: Upload Source (with cache benefit)
+      # ---------------- SAVE RESULT ----------------
+      - name: Upload Source
         uses: actions/upload-artifact@v4
         with:
-          name: lineage-source
+          name: lineage-source-j3xnlte
           path: lineage
