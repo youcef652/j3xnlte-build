@@ -125,11 +125,17 @@ jobs:
         with:
           distribution: temurin
           java-version: '8'
+          
       - name: Build ROM
         run: |
           cd lineage
+
+          export JAVA_HOME=$JAVA_HOME
+          export PATH=$JAVA_HOME/bin:$PATH
+
           source build/envsetup.sh
           export ALLOW_MISSING_DEPENDENCIES=true
+
           lunch lineage_j3xnlte-userdebug
           mka bacon -j2
 
