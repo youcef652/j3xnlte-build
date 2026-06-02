@@ -27,10 +27,6 @@ jobs:
           chmod +x ~/bin/repo
           echo "$HOME/bin" >> $GITHUB_PATH
 
-      - name: Show Git Config
-        run: |
-          git config --global --list || true
-
       - name: Init LineageOS
         run: |
           mkdir lineage
@@ -70,10 +66,6 @@ jobs:
                      name="djeman/android_device_samsung_j3xnlte"
                      revision="lineage-15.1" />
 
-            <project path="kernel/samsung/sharkls-common"
-                     name="djeman/android_kernel_samsung_sharkls-common"
-                     revision="lineage-15.1" />
-
             <project path="kernel/samsung/sharkls"
                      name="djeman/android_kernel_samsung_sharkls"
                      revision="lineage-15.1" />
@@ -82,21 +74,15 @@ jobs:
                      name="djeman/android_vendor_samsung_common"
                      revision="lineage-15.1" />
 
-            <project path="vendor/sprd"
-                     name="djeman/android_vendor_sprd"
-                     revision="lineage-15.1" />
-
           </manifest>
           EOF
 
       - name: Repo Sync
         run: |
           cd lineage
-          repo sync -c -j1 --force-sync --retry-fetches=5 --verbose
-        env:
-          GIT_TERMINAL_PROMPT: 0
+          repo sync -c -j1 --force-sync --retry-fetches=10
 
-      - name: Show Disk Usage
+      - name: Disk Usage
         if: always()
         run: |
           df -h
