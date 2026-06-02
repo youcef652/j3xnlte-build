@@ -120,6 +120,11 @@ jobs:
           echo "===== DEPENDENCIES CHECK ====="
           grep -n "sharkls-common" device/samsung/j3xnlte/j3xnlte.mk || true
 
+      - name: Setup Java 8
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '8'
       - name: Build ROM
         run: |
           cd lineage
