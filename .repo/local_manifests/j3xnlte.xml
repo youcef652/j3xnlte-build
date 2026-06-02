@@ -20,9 +20,4 @@
              name="LineageOS/android_hardware_samsung"
              revision="lineage-15.1" />
 
-    <!-- Recovery -->
-    <project path="bootable/recovery"
-             name="omnirom/android_bootable_recovery"
-             revision="android-8.1" />
-
 </manifest>
