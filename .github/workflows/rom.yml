@@ -43,13 +43,21 @@ jobs:
           rm -rf .repo/local_manifests
           mkdir -p .repo/local_manifests
 
-      - name: Add Manifest
+      # ---------------- FIXED MANIFEST ----------------
+      - name: Add Manifest (FIXED)
         run: |
           cd lineage
+
           cat > .repo/local_manifests/j3xnlte.xml << 'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
           <manifest>
+
             <project path="device/samsung/j3xnlte"
                      name="djeman/android_device_samsung_j3xnlte"
+                     revision="lineage-15.1" />
+
+            <project path="device/samsung/sharkls-common"
+                     name="djeman/android_device_samsung_sharkls-common"
                      revision="lineage-15.1" />
 
             <project path="kernel/samsung/sharkls"
@@ -59,13 +67,31 @@ jobs:
             <project path="hardware/samsung"
                      name="LineageOS/android_hardware_samsung"
                      revision="lineage-15.1" />
+
           </manifest>
           EOF
 
       - name: Repo Sync
         run: |
           cd lineage
-          repo sync -c --force-sync --no-tags --no-clone-bundle -j1
+          repo sync -c --force-sync --no-tags --no-clone-bundle -j1 --retry-fetches=10
+
+      # ---------------- IMPORTANT DEBUG ----------------
+      - name: Debug sharkls-common
+        run: |
+          cd lineage
+
+          echo "===== device/samsung ====="
+          ls -la device/samsung || true
+
+          echo "===== sharkls-common ====="
+          ls -la device/samsung/sharkls-common || true
+
+          echo "===== sharkls.mk search ====="
+          find device/samsung/sharkls-common -name "sharkls.mk" || true
+
+          echo "===== j3xnlte dependency check ====="
+          grep -n "sharkls-common" device/samsung/j3xnlte/j3xnlte.mk || true
 
       - name: Build ROM
         run: |
