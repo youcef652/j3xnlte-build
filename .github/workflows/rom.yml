@@ -1,1 +1,74 @@
+name: LineageOS 15.1 FLASHABLE ROM (J3XNLTE)
 
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    env:
+      USE_CCACHE: 1
+      CCACHE_DIR: ${{ github.workspace }}/ccache
+
+    steps:
+
+      # ---------------- CLEAN ----------------
+      - name: Free Space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/lib/android
+          df -h
+
+      # ---------------- DEPENDENCIES ----------------
+      - name: Install packages
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            git curl bc bison build-essential ccache \
+            flex g++-multilib gcc-multilib gperf \
+            lib32ncurses5-dev lib32z1-dev liblz4-tool \
+            libncurses5-dev libssl-dev zip rsync \
+            openjdk-8-jdk python-is-python3
+
+      # ---------------- REPO TOOL ----------------
+      - name: Install repo
+        run: |
+          mkdir -p ~/bin
+          curl -fsSL https://storage.googleapis.com/git-repo-downloads/repo -o ~/bin/repo
+          chmod +x ~/bin/repo
+          echo "$HOME/bin" >> $GITHUB_PATH
+
+      # ---------------- DOWNLOAD SYNC SOURCE ----------------
+      - name: Get Source
+        uses: actions/download-artifact@v4
+        with:
+          name: lineage-source-j3xnlte
+          path: lineage
+
+      # ---------------- CCACHE ----------------
+      - name: Setup ccache
+        run: |
+          ccache -M 20G
+          ccache -z
+
+      # ---------------- BUILD ----------------
+      - name: Build ROM
+        run: |
+          cd lineage
+          source build/envsetup.sh
+          lunch lineage_j3xnlte-userdebug
+          mka bacon -j2
+
+      # ---------------- VERIFY ZIP ----------------
+      - name: Check ROM output
+        run: |
+          ls -lh lineage/out/target/product/j3xnlte/
+
+      # ---------------- UPLOAD FLASHABLE ROM ----------------
+      - name: Upload Flashable ROM
+        uses: actions/upload-artifact@v4
+        with:
+          name: LineageOS-15.1-J3XNLTE-FLASHABLE
+          path: lineage/out/target/product/j3xnlte/*.zip
