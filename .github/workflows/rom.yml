@@ -85,6 +85,18 @@ jobs:
           cd lineage
           repo sync -c --force-sync --no-tags --no-clone-bundle -j1 --retry-fetches=10
 
+      - name: Fix Missing SCX35L Proprietaries
+        run: |
+          cd lineage
+
+          mkdir -p vendor/sprd/proprietaries
+
+          cat > vendor/sprd/proprietaries/proprietaries-scx35l.mk << 'EOF'
+          #
+          # Temporary SCX35L proprietary file
+          #
+          EOF
+
       # ---------------- FULL DEBUG ----------------
       - name: Debug Trees
         run: |
