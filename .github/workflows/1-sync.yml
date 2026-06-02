@@ -1,0 +1,66 @@
+name: Sync LineageOS 15.1 J3XNLTE
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Free Space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/lib/android
+
+      - name: Install repo
+        run: |
+          mkdir -p ~/bin
+          curl -fsSL https://storage.googleapis.com/git-repo-downloads/repo -o ~/bin/repo
+          chmod +x ~/bin/repo
+          echo "$HOME/bin" >> $GITHUB_PATH
+
+      - name: Init Source
+        run: |
+          mkdir lineage
+          cd lineage
+          repo init -u https://github.com/LineageOS/android.git -b lineage-15.1 --depth=1
+
+      - name: Add Local Manifest
+        run: |
+          cd lineage
+          mkdir -p .repo/local_manifests
+
+          cat > .repo/local_manifests/j3xnlte.xml << 'EOF'
+          <manifest>
+
+            <project path="device/samsung/j3xnlte"
+                     name="djeman/android_device_samsung_j3xnlte"
+                     revision="lineage-15.1" />
+
+            <project path="kernel/samsung/sharkls"
+                     name="djeman/android_kernel_samsung_sharkls"
+                     revision="lineage-15.1" />
+
+            <project path="hardware/samsung"
+                     name="LineageOS/android_hardware_samsung"
+                     revision="lineage-15.1" />
+
+            <project path="bootable/recovery"
+                     name="omnirom/android_bootable_recovery"
+                     revision="android-8.1" />
+
+          </manifest>
+          EOF
+
+      - name: Repo Sync
+        run: |
+          cd lineage
+          repo sync -c -j1 --force-sync --retry-fetches=10
+
+      - name: Upload Source
+        uses: actions/upload-artifact@v4
+        with:
+          name: lineage-source
+          path: lineage
