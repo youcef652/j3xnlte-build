@@ -1,0 +1,58 @@
+name: Build LineageOS 15.1 J3XNLTE
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    env:
+      USE_CCACHE: 1
+      CCACHE_DIR: ${{ github.workspace }}/ccache
+
+    steps:
+
+      - name: Free Space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/lib/android
+
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            git curl bc bison build-essential ccache \
+            flex g++-multilib gcc-multilib gperf \
+            lib32ncurses5-dev lib32z1-dev liblz4-tool \
+            libncurses5-dev libssl-dev zip rsync \
+            openjdk-8-jdk
+
+      - name: Setup ccache
+        run: |
+          ccache -M 20G
+          ccache -z
+
+      - name: Download Source
+        uses: actions/download-artifact@v4
+        with:
+          name: lineage-source
+          path: lineage
+
+      - name: Build ROM
+        run: |
+          cd lineage
+          source build/envsetup.sh
+          lunch lineage_j3xnlte-userdebug
+          mka bacon -j2
+
+      - name: Upload ROM
+        uses: actions/upload-artifact@v4
+        with:
+          name: lineage-15.1-j3xnlte
+          path: lineage/out/target/product/j3xnlte/*.zip
+
+      - name: Show ccache
+        run: |
+          ccache -s
