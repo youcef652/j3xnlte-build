@@ -43,7 +43,7 @@ jobs:
           rm -rf .repo/local_manifests
           mkdir -p .repo/local_manifests
 
-      # ---------------- FIXED MANIFEST ----------------
+      # ---------------- MANIFEST FIX ----------------
       - name: Add Manifest (FIXED)
         run: |
           cd lineage
@@ -52,21 +52,30 @@ jobs:
           <?xml version="1.0" encoding="UTF-8"?>
           <manifest>
 
+            <!-- Device -->
             <project path="device/samsung/j3xnlte"
                      name="djeman/android_device_samsung_j3xnlte"
                      revision="lineage-15.1" />
 
+            <!-- Common device tree -->
             <project path="device/samsung/sharkls-common"
                      name="djeman/android_device_samsung_sharkls-common"
                      revision="lineage-15.1" />
 
+            <!-- Kernel -->
             <project path="kernel/samsung/sharkls"
                      name="djeman/android_kernel_samsung_sharkls"
                      revision="lineage-15.1" />
 
+            <!-- Hardware -->
             <project path="hardware/samsung"
                      name="LineageOS/android_hardware_samsung"
                      revision="lineage-15.1" />
+
+            <!-- VENDOR SPRD (IMPORTANT FIX) -->
+            <project path="vendor/sprd"
+                     name="ljvblfz/fork-android_vendor_sprd"
+                     revision="main" />
 
           </manifest>
           EOF
@@ -76,21 +85,27 @@ jobs:
           cd lineage
           repo sync -c --force-sync --no-tags --no-clone-bundle -j1 --retry-fetches=10
 
-      # ---------------- IMPORTANT DEBUG ----------------
-      - name: Debug sharkls-common
+      # ---------------- FULL DEBUG ----------------
+      - name: Debug Trees
         run: |
           cd lineage
 
-          echo "===== device/samsung ====="
+          echo "===== DEVICE TREE ====="
           ls -la device/samsung || true
 
-          echo "===== sharkls-common ====="
+          echo "===== SHARKLS COMMON ====="
           ls -la device/samsung/sharkls-common || true
 
-          echo "===== sharkls.mk search ====="
+          echo "===== SHARKLS MK ====="
           find device/samsung/sharkls-common -name "sharkls.mk" || true
 
-          echo "===== j3xnlte dependency check ====="
+          echo "===== VENDOR SPRD ====="
+          ls -la vendor/sprd || true
+
+          echo "===== SCX35L CHECK ====="
+          find vendor/sprd -name "*scx35l*" || true
+
+          echo "===== DEPENDENCIES CHECK ====="
           grep -n "sharkls-common" device/samsung/j3xnlte/j3xnlte.mk || true
 
       - name: Build ROM
