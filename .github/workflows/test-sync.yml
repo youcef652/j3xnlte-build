@@ -18,7 +18,18 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt update
-          sudo apt install -y git repo
+          sudo apt install -y git curl
+
+      - name: Install Repo Tool
+        run: |
+          mkdir -p ~/bin
+          curl -fsSL https://storage.googleapis.com/git-repo-downloads/repo -o ~/bin/repo
+          chmod +x ~/bin/repo
+          echo "$HOME/bin" >> $GITHUB_PATH
+
+      - name: Show Git Config
+        run: |
+          git config --global --list || true
 
       - name: Init LineageOS
         run: |
@@ -34,6 +45,7 @@ jobs:
           cat > .repo/local_manifests/j3xnlte.xml << 'EOF'
           <?xml version="1.0" encoding="UTF-8"?>
           <manifest>
+
             <project path="external/busybox"
                      name="omnirom/android_external_busybox"
                      revision="android-8.1" />
@@ -73,13 +85,9 @@ jobs:
             <project path="vendor/sprd"
                      name="djeman/android_vendor_sprd"
                      revision="lineage-15.1" />
+
           </manifest>
           EOF
-
-      - name: Test sharkls-common Access (safe)
-        run: |
-          git config --global url."https://github.com/".insteadOf "git@github.com:"
-          GIT_TERMINAL_PROMPT=0 git ls-remote https://github.com/djeman/android_kernel_samsung_sharkls-common.git || echo "FAILED BUT CONTINUE"
 
       - name: Repo Sync
         run: |
