@@ -138,7 +138,6 @@ jobs:
 
           lunch lineage_j3xnlte-userdebug
           mka bacon -j2
-
       - name: Upload ROM
         uses: actions/upload-artifact@v4
         with:
