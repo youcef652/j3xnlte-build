@@ -92,7 +92,9 @@ jobs:
       - name: Repo Sync
         run: |
           cd lineage
-          repo sync -c -j1 --force-sync --retry-fetches=5
+          repo sync -c -j1 --force-sync --retry-fetches=5 --verbose
+        env:
+          GIT_TERMINAL_PROMPT: 0
 
       - name: Show Disk Usage
         if: always()
