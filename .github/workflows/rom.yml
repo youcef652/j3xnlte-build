@@ -126,13 +126,15 @@ jobs:
           distribution: temurin
           java-version: '8'
           
+      - name: Fix RIL Duplicate Build
+        run: |
+          cd lineage
+          mkdir -p hardware/ril
+          echo " " > hardware/ril/Android.mk
+
       - name: Build ROM
         run: |
           cd lineage
-
-          export JAVA_HOME=$JAVA_HOME
-          export PATH=$JAVA_HOME/bin:$PATH
-
           source build/envsetup.sh
           export ALLOW_MISSING_DEPENDENCIES=true
 
